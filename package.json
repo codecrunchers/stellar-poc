@@ -1,0 +1,22 @@
+{
+  "name": "create_account",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chai": "^3.5.0",
+    "function-source": "^0.1.0",
+    "mocha": "^3.4.1",
+    "stellar": "0.0.0",
+    "stellar-sdk": "^0.7.3"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.4.1"
+  }
+}
