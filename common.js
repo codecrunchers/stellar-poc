@@ -1,6 +1,9 @@
 var StellarSdk = require('stellar-sdk');
+
 var isDemoMode = true;
 var stellarServer = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+StellarSdk.Network.useTestNetwork();
+
 
 var AppCommon = function(){
     return {

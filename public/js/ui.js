@@ -1,5 +1,6 @@
 var $getAccountBtn = $('#getAccountBtn');
 var $getBalanceBtn = $('#getBalanceBtn');
+var $buyBtn = $('#enterMSEContractBtn');
 
 var $popup =$('#popup');
 var appendthis =  ("<div class='modal-overlay js-modal-close'></div>");
@@ -13,6 +14,7 @@ var MSEApp = function() {
                 console.log( "ready!" );
                 $getAccountBtn.click(getAccount);
                 $getBalanceBtn.click(getBalance);
+                $buyBtn.click(buy);
                 doDemoPopUp();
             });
             console.log("go");
@@ -52,8 +54,12 @@ var MSEApp = function() {
                 console.log("Err",json.error);
             }else{
                 $('#_balance').html(json.balance);
+                $('#enterMSEContractBtn').prop( "disabled", false );
             }
         });
+    }
+    function buy(){
+
     }
 }
 

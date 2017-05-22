@@ -8,6 +8,8 @@ app.use(express.static('public'))
 var accountManager  = require('./stellar/stellar').accountManager;
 var balanceManager  = require('./stellar/stellar').balanceManager;
 
+var sourceKeys = accountManager.createAccount();
+
 
 app.get('/',function(req,res){
   res.render('index', { title: 'Hey', message: 'Hello there!' })
@@ -30,6 +32,14 @@ app.get('/account/:accountId/balance', function (req, res) {
   });
 })
 
+app.post('/transfer/:amount/:to', function(req,req){
+ 
+    var obj = balanceManager.getBalance({publicKey: req.params.accountId},function(obj){
+      console.log("returning balance",obj);
+      res.send(JSON.stringify(obj));
+  });
+
+});
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
