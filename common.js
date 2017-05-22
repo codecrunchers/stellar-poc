@@ -1,8 +1,12 @@
+var StellarSdk = require('stellar-sdk');
+var isDemoMode = true;
+var stellarServer = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+
 var AppCommon = function(){
-    var server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
     return {
+        isDemoMode: function(){return isDemoMode;},
+        server: function(){ return stellarServer;}
     }
 }
-
-
-export.appCommon = AppCommon
+appCommon = AppCommon();
+exports.appCommon = appCommon;
