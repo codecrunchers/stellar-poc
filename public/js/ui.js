@@ -5,26 +5,33 @@ var $buyBtn = $('#enterMSEContractBtn');
 var $popup =$('#popup');
 var appendthis =  ("<div class='modal-overlay js-modal-close'></div>");
 
+var balanceTimer = null;
 
 var MSEApp = function() {
     _accountId  = -1;
-    balanceTimer = null;
 
     return {
         init: (function(){
             $( document ).ready(function() {
                 console.log( "ready!" );
                 $getAccountBtn.click(getAccount);
-                $getBalanceBtn.click(getBalance);
                 $buyBtn.click(buy);
                 doDemoPopUp();
+                $('#mseNowThen').html(
+                        $('#usemse').prop('checked') ? 'When your happy' : 'Now');
+                $('#usemse').click(function(e){
+                    $('#mseNowThen').html(
+                        $('#usemse').prop('checked') ? 'When your happy' : 'Now');
+                });
 
-                balanceTimer = setTimeout(
+
+
+                balanceTimer = setInterval(
                         function(){
+                            $("#balSpinner").html('<img height="20px" width="20px" src="/images/spinner.gif" alt="Wait" />');
                             mseApp.balance();
-                            console.log("Balance Retriever...");
                         },
-                        1000);
+                        2000);
             });
             console.log("go");
         })(),
@@ -42,7 +49,7 @@ var MSEApp = function() {
             $(".modal-overlay").fadeTo(500, 0.7);
             var modalBox = $(this).attr('data-modal-id');
             $('#'+modalBox).fadeIn($(this).data());
-        }); 
+        });
     }
     function getAccount(){
         $.post( "/account", function( data ) {
@@ -58,17 +65,25 @@ var MSEApp = function() {
         });
     }
     function getBalance(){
+        if(_accountId  == -1)
+        {
+            return;
+        }
         console.log("balance for",_accountId);
-        if(_accountId  == -1) return;
+
         $.get( "/account/"+_accountId+"/balance", function( data ) {
             console.log("/balance raw",data)
             json = $.parseJSON(data);
+            $("#balSpinner").html('');
             if(json.error){
                 console.log("Err",json.error);
             }else{
                 $('#_balance').html(json.balance);
                 $('#enterMSEContractBtn').prop( "disabled", false );
+                clearInterval(balanceTimer);
             }
+            $("#balSpinner").html('');
+
         });
     }
     function buy(){
@@ -79,10 +94,22 @@ var MSEApp = function() {
                 $('#productId').html("Purchase rejected");
             }else{
                 status = transfer.isFulfilled;
-                $('#productId').append("Status: " + status == true ? "Fulfilled" : "Pending Fulfill");
+                $('#productId').html("Status: " + status == true ? "Fulfilled" : "Pending Fulfill");
 
             }
             console.debug("/transfer repsonse",transfer);
+            console.debug("/transfer feteching latest",transfer);
+            $.get( "/transfer",
+                    function(transferResponse){
+                        obj = $.parseJSON(transferResponse);
+                        obj.records.forEach(function(record){
+                            if(record.sourceAccount == $('#accountSecret').html().split(' ')[3] && record.memo == 'Standard Test Transaction') {
+                                $('#productId').html("Fulfilled");
+                                deliverSmileyFace();
+                            }
+                        });
+                    });
+
         });
 
     }
@@ -102,5 +129,9 @@ $(window).resize(function() {
         left: ($(window).width() - $(".modal-box").outerWidth()) / 2
     });
 });
+
+function deliverSmileyFace(){
+    $('#smileyface').html('&#9786;');
+}
 
 

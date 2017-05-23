@@ -3,20 +3,15 @@ var app = express();
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
 
+var common = require('./common').appCommon;
 var accountManager  = require('./stellar/stellar').accountManager;
 var balanceManager  = require('./stellar/stellar').balanceManager;
 var transferManager  = require('./stellar/stellar').transferManager;
 var StellarSdk = require('stellar-sdk');
 
-var serverKeys = accountManager.createAccount();
-console.log("Using %s for server.",serverKeys.publicKey,balanceManager.getBalance(serverKeys,
-            function(reply){
-                if(reply.error){
-                    console.log("Balance not available");
-                }else{
-                    console.log("Balance",reply.balance)
-                }
-            }));
+var serverKeys = appCommon.serverKeys();
+console.log("Server Keys",serverKeys);
+
 
 app.get('/',function(req,res){
   res.render('index', { title: 'Hey', message: 'Hello there!' })
@@ -27,6 +22,8 @@ app.post('/account', function (req, res) {
   var obj = accountManager.createAccount();
   res.send(JSON.stringify({publicKey:obj.publicKey(),secretKey:obj.secret()}));
 })
+
+
 
 app.get('/account/:accountId', function (req, res) {
   var obj = accountManager.getAccount({publicKey: req.params.accountId});
@@ -42,6 +39,15 @@ app.get('/account/:accountId/balance', function (req, res) {
 
 
 //transfers
+//
+app.get('/transfer', function (req, res) {
+    var obj = transferManager.isFulfilled(
+            function(obj){
+                console.log("transfers",obj);
+                res.send(JSON.stringify(obj));
+            })
+});
+
 app.post('/transfer/:amount/:fromPrivateKey', function(req,res){
     console.log('Processing transfer of $s for %s', req.params.amount, req.params.fromPrivateKey);
     var from = req.params.fromPrivateKey;

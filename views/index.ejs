@@ -75,20 +75,22 @@
       </p>
       <p id="accountSecret"> </p>
 
-        <p id="accountBalance">Balance:<span id="_balance"> 0 lumens (XLM) </span>
-          <input id="getBalanceBtn" type="button" disabled value="Update" style="color:blue"/>
-        </p>
+      <p id="accountBalance">Balance:<span id="_balance"> 0 lumens (XLM) </span> <span id="balSpinner"></></p>
     </aside>
     <aside>
       <h3 class="greyed">Escrow Purchase</h3>
-      <p id="productId">Purchase 1 Smiley face - Pay now
-        <input style="color:blue" type="button" id="enterMSEContractBtn" value="Make a purchase" disabled></input>
-      </p>
-      <input id="useMSE" type="checkbox" checked>Use MultiSignature</input>
+      <p>Purchase 1 Digital Smiley Face - </p><p><b>Pay: <span id="mseNowThen"></span></b></p>
+      <input style="color:blue" type="button" id="enterMSEContractBtn" value="Make a Purchase" disabled></input>
+      <hr/>
+      <label for="usemse">Select to pay when happy with product</label>
+      <input id="usemse" type="checkbox"></input>
     </aside>
     <aside>
       <h3 class="greyed">Transaction Status</h3>
-      <p id="mseStatus"></p>
+      <p id="productId"/>
+      <p id="mseStatus"/>
+      <p id="smileyface"/>
+      
     </aside>
 
 

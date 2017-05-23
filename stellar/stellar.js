@@ -55,11 +55,9 @@ var BalanceManager = function(){
                 return;
             }
             //TODO: number of accounts
-            console.log('Fetching Balances for account: %s',pair.publicKey );
             server.loadAccount(pKey).then(function(account) {
-                console.log('Balances for account: ' + pKey);
                 account.balances.forEach(function(balance) {
-                    console.log('Type:', balance.asset_type, ', Balance:', balance.balance);
+                    console.log('Balance Type:', balance.asset_type, ', Balance:', balance.balance);
                     callback(balance);
                 });
             });
@@ -105,10 +103,11 @@ var TransactionManager = function(){
                 console.error('Something went wrong!', error);
             });
         },
-        isFulfilled: function(){
+        isFulfilled: function(callback){
+            var serverKeys = common.serverKeys();
             server.transactions()
                 .forAccount(serverKeys.publicKey())
-                .call().then(function(r){ console.log(r); });
+                .call().then(callback);
 
         }
     }
