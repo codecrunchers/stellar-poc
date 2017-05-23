@@ -8,8 +8,6 @@ var balanceManager  = require('./stellar/stellar').balanceManager;
 var transferManager  = require('./stellar/stellar').transferManager;
 var StellarSdk = require('stellar-sdk');
 
-
-
 var serverKeys = accountManager.createAccount();
 console.log("Using %s for server.",serverKeys.publicKey,balanceManager.getBalance(serverKeys,
             function(reply){
@@ -56,7 +54,6 @@ app.post('/transfer/:amount/:fromPrivateKey', function(req,res){
       console.log("returning post transfer",transferResponse);
       res.send(JSON.stringify(transferResponse));
     });
-
 });
 
 app.listen(3000, function () {
@@ -64,6 +61,3 @@ app.listen(3000, function () {
 })
 
 
-function updateBalance(balance){
-    console.log("Balance Received", balance);
-}

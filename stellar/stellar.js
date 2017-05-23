@@ -104,6 +104,11 @@ var TransactionManager = function(){
             .catch(function(error) {
                 console.error('Something went wrong!', error);
             });
+        },
+        isFulfilled: function(){
+            server.transactions()
+                .forAccount(serverKeys.publicKey())
+                .call().then(function(r){ console.log(r); });
 
         }
     }
