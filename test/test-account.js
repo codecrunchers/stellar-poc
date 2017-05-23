@@ -1,6 +1,10 @@
 var common = require('../common').appCommon;
-var accountManager = require('../index').accountManager
-var balanceManager = require('../index').balanceManager
+var accountManager = require('../stellar/stellar').accountManager
+var balanceManager = require('../stellar/stellar').balanceManager
+var transferManager  = require('../stellar/stellar').transferManager;
+var StellarSdk = require('stellar-sdk');
+
+
 
 var expect = require("chai").expect;
 
@@ -17,6 +21,24 @@ describe('Balance Manager',function(){
         expect(balanceManager).to.not.equal(undefined);
     })
 });
+
+describe('Transfer Manager',function(){
+    it('Should be available',function(){
+        expect(transferManager).to.not.equal(undefined);
+    })
+    it('Should call my function after a transfer',function(){
+        var from = StellarSdk.Keypair
+            .fromSecret('SCIK63X7SAVXMLOA74BNBC72Z4YBB2O7GK3RSGV6JALYFEMC4BUZLWMJ');
+        var to =  StellarSdk.Keypair
+            .fromSecret('SAMIXTTBCKH32YEVJR7FCULEE4RS7WIMSXSIOPI3CTD6KWDTDFMYXDZ3');
+        var gotCallBack = false;
+        transferManager.transfer(from,to,100,{},function(){
+            gotCallBack =true;
+        })
+        expect(gotCallBack).to.be.true;
+    });
+});
+
 
 describe('appAccount', function() {
 

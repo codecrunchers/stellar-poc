@@ -38,7 +38,8 @@ var MSEApp = function() {
             console.debug("/account",json);
             _accountId = json.publicKey;
             $('#accountId').append(_accountId);
-            $('#accountId').append("Secret: " + json.secretKey);
+            $('#accountSecret').append("Secret: " + json.secretKey);
+
 
             $getAccountBtn.hide();
             $('#youraccount').removeClass('greyed');
@@ -59,6 +60,11 @@ var MSEApp = function() {
         });
     }
     function buy(){
+        console.log("Purchase for",_accountId);
+        $.post( "/transfer/100/" + $('#accountSecret').html().split(' ')[2], function( data ) {
+            json = $.parseJSON(data);
+            console.debug("/transfer",json, data);
+        });
 
     }
 }

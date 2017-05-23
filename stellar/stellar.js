@@ -12,33 +12,29 @@ var AccountManager = function(){
         createAccount: function(){
             console.log("Creating Account");
             var pair = StellarSdk.Keypair.random();
-            var keys =  {
-                publicKey: pair.publicKey(),
-                secretKey: pair.secret()
-            }
 
             if(isDemoMode == true){
                 console.log('#### DEMO MODE ###');
-                seedAccount(keys,20);
-                console.log("Private Key:", keys.secretKey);
+                seedAccount(pair,20);
+                console.log("Private Key:", pair.secret());
             }
 
-            console.log("Public Key:", keys.publicKey);
-            return keys;
+            console.log("Public Key:", pair.publicKey());
+            return pair;
 
         },
         getAccount: function(accountId){
             return server.loadAccount(accountId);
         }
     }
-    function seedAccount(accountObject,credit){
-        console.log("@SeedAccount");
+    function seedAccount(pair,credit){
+        console.log("@SeedAccount with",pair);
 
-        if(accountObject.publicKey == undefined || accountObject.publicKey.length !=56){
+        if(pair == undefined || pair.publicKey().length !=56){
             handleError("Invalid Key")
                 return;
         }
-        var friendBot = horizonURL+'/friendbot?addr='+accountObject.publicKey;
+        var friendBot = horizonURL+'/friendbot?addr='+pair.publicKey();
         console.log('Submitting to %s',friendBot);
         curl.get(friendBot, {} ,
                 function (error, response, body) {
@@ -50,17 +46,16 @@ var AccountManager = function(){
 
 var BalanceManager = function(){
     return {
-        getBalance: function(accountObject, callback){
-
+        getBalance: function(pair,  callback){
             var balance = 0;
-            var pKey = accountObject.publicKey;
+            var pKey = pair.publicKey;
             if(seeded == false){
                 console.log("Not seeded");
                 callback({balance:NaN,error:"Not Seeded"});
                 return;
             }
             //TODO: number of accounts
-            console.log('Fetching Balances for account: %s',accountObject.publicKey );
+            console.log('Fetching Balances for account: %s',pair.publicKey );
             server.loadAccount(pKey).then(function(account) {
                 console.log('Balances for account: ' + pKey);
                 account.balances.forEach(function(balance) {
@@ -72,15 +67,59 @@ var BalanceManager = function(){
     }
 }
 
+
+var TransactionManager = function(){
+    return {
+        transfer: function(from, to, amount, details, callback){
+            server.loadAccount(to.publicKey())
+            .catch(StellarSdk.NotFoundError, function (error) {
+                throw new Error('The destination account does not exist!');
+            })
+            // If there was no error, load up-to-date information on your account.
+            .then(function() {
+                return server.loadAccount(from.publicKey());
+            })
+            .then(function(sourceAccount) {
+                // Start building the transaction.
+                var transaction = new StellarSdk.TransactionBuilder(sourceAccount)
+                    .addOperation(StellarSdk.Operation.payment({
+                        destination: to.publicKey(),
+                        // Because Stellar allows transaction in many currencies, you must
+                        // specify the asset type. The special "native" asset represents Lumens.
+                        asset: StellarSdk.Asset.native(),
+                        amount: amount
+                    }))
+                // A memo allows you to add your own metadata to a transaction. It's
+                // optional and does not affect how Stellar treats the transaction.
+                .addMemo(StellarSdk.Memo.text('Standard Test Transaction'))
+                    .build();
+                // Sign the transaction to prove you are actually the person sending it.
+                transaction.sign(from);
+                // And finally, send it off to Stellar!
+                callback(server.submitTransaction(transaction));
+            })
+            .then(function(result) {
+                console.log('Success! Results:', result);
+            })
+            .catch(function(error) {
+                console.error('Something went wrong!', error);
+            });
+
+        }
+    }
+}
+
 function handleError(e){
     console.log("---------Error",e);
 }
 
 accountManager = AccountManager();
 balanceManager = BalanceManager();
+transferManager = TransactionManager();
 
 exports.accountManager = accountManager;
 exports.balanceManager = balanceManager;
+exports.transferManager = transferManager;
 
 
 
